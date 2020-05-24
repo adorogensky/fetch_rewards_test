@@ -12,10 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EmailController.class)
@@ -33,22 +34,22 @@ class EmailControllerTests {
     @Test
     void endpointInputOutputTest() throws Exception {
         UniqueGmailAddressesRequest uniqueGmailAddressRequest = new UniqueGmailAddressesRequest();
-        uniqueGmailAddressRequest.setEmailList(
-                Arrays.asList(
-                        "test.email@gmail.com",
-                        "test.email+spam@gmail.com",
-                        "testemail@gmail.com"
-                )
+        List<String> emails = Arrays.asList(
+                "test.email@gmail.com",
+                "test.email+spam@gmail.com",
+                "testemail@gmail.com"
         );
+
+        uniqueGmailAddressRequest.setEmailList(emails);
 
         UniqueGmailAddressesResponse expectedUniqueGmailAddressResponse = new UniqueGmailAddressesResponse();
         expectedUniqueGmailAddressResponse.setUniqueEmailCount(1);
 
-        when(emailService.getUniqueEmailCount()).thenReturn(1);
+        when(emailService.getUniqueEmailCount(emails)).thenReturn(1);
 
         String actualUniqueGmailAddressesResponseAsJson = mockMvc.perform(
-                get("/email/gmail/unique")
-                        .accept(MediaType.APPLICATION_JSON)
+                post("/email/gmail/unique")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 objectMapper.writeValueAsString(
                                         uniqueGmailAddressRequest
